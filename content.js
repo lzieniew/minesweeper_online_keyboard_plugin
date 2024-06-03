@@ -1,5 +1,3 @@
-// content.js
-
 (function() {
     let currentX = 0;
     let currentY = 0;
@@ -62,8 +60,12 @@
         const cell = document.querySelector(`div[data-x="${currentX}"][data-y="${currentY}"]`);
         if (cell && cell.classList.contains('hd_closed')) {
             console.log(`Attempting to mark cell at position: (${currentX}, ${currentY}) as mine.`);
-            cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, button: 2, buttons: 2 }));
-            cell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 2, buttons: 2 }));
+            const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, button: 2, buttons: 2 });
+            const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, button: 2, buttons: 2 });
+            cell.dispatchEvent(mousedownEvent);
+            console.log('Dispatched mousedown event:', mousedownEvent);
+            cell.dispatchEvent(mouseupEvent);
+            console.log('Dispatched mouseup event:', mouseupEvent);
             console.log(`Cell at position: (${currentX}, ${currentY}) marked as mine.`);
         } else {
             console.log(`Cell at position: (${currentX}, ${currentY}) not found or already revealed.`);
@@ -105,6 +107,7 @@
                 e.preventDefault(); // Prevent default action for f key
                 markMine();
                 break;
+            // Do not prevent default action for spacebar
         }
         detectBoardSize();
         updateMarkerPosition();

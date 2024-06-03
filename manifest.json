@@ -4,7 +4,8 @@
   "version": "1.0",
   "description": "Control Minesweeper game with keyboard.",
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
   "content_scripts": [
     {
