@@ -60,12 +60,9 @@
         const cell = document.querySelector(`div[data-x="${currentX}"][data-y="${currentY}"]`);
         if (cell && cell.classList.contains('hd_closed')) {
             console.log(`Attempting to mark cell at position: (${currentX}, ${currentY}) as mine.`);
-            const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, button: 2, buttons: 2 });
-            const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, button: 2, buttons: 2 });
-            cell.dispatchEvent(mousedownEvent);
-            console.log('Dispatched mousedown event:', mousedownEvent);
-            cell.dispatchEvent(mouseupEvent);
-            console.log('Dispatched mouseup event:', mouseupEvent);
+            const contextMenuEvent = new MouseEvent('contextmenu', { bubbles: true, button: 2, buttons: 2 });
+            cell.dispatchEvent(contextMenuEvent);
+            console.log('Dispatched contextmenu event:', contextMenuEvent);
             console.log(`Cell at position: (${currentX}, ${currentY}) marked as mine.`);
         } else {
             console.log(`Cell at position: (${currentX}, ${currentY}) not found or already revealed.`);
@@ -94,6 +91,22 @@
             case 'l':
                 e.preventDefault(); // Prevent default action for arrow keys
                 currentX = Math.min(maxX, currentX + 1);
+                break;
+            case 'H':
+                e.preventDefault(); // Prevent default action for H key
+                currentX = 0; // Move to left edge
+                break;
+            case 'J':
+                e.preventDefault(); // Prevent default action for J key
+                currentY = maxY; // Move to bottom edge
+                break;
+            case 'K':
+                e.preventDefault(); // Prevent default action for K key
+                currentY = 0; // Move to top edge
+                break;
+            case 'L':
+                e.preventDefault(); // Prevent default action for L key
+                currentX = maxX; // Move to right edge
                 break;
             case 'd':
                 e.preventDefault(); // Prevent default action for d key
