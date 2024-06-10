@@ -60,9 +60,12 @@
         const cell = document.querySelector(`div[data-x="${currentX}"][data-y="${currentY}"]`);
         if (cell && cell.classList.contains('hd_closed')) {
             console.log(`Attempting to mark cell at position: (${currentX}, ${currentY}) as mine.`);
-            const contextMenuEvent = new MouseEvent('contextmenu', { bubbles: true, button: 2, buttons: 2 });
-            cell.dispatchEvent(contextMenuEvent);
-            console.log('Dispatched contextmenu event:', contextMenuEvent);
+            const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, button: 2, buttons: 2 });
+            const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, button: 2, buttons: 2 });
+            cell.dispatchEvent(mousedownEvent);
+            console.log('Dispatched mousedown event:', mousedownEvent);
+            cell.dispatchEvent(mouseupEvent);
+            console.log('Dispatched mouseup event:', mouseupEvent);
             console.log(`Cell at position: (${currentX}, ${currentY}) marked as mine.`);
         } else {
             console.log(`Cell at position: (${currentX}, ${currentY}) not found or already revealed.`);
