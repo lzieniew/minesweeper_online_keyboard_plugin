@@ -61,7 +61,6 @@
         if (cell && cell.classList.contains('hd_closed')) {
             console.log(`Attempting to mark cell at position: (${currentX}, ${currentY}) as mine.`);
             
-            // First attempt with mousedown/mouseup events
             const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, button: 2, buttons: 2 });
             const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, button: 2, buttons: 2 });
             cell.dispatchEvent(mousedownEvent);
@@ -69,7 +68,6 @@
             cell.dispatchEvent(mouseupEvent);
             console.log('Dispatched mouseup event:', mouseupEvent);
 
-            // If the first attempt fails, fallback to contextmenu event
             if (!cell.classList.contains('flagged')) {
                 const contextMenuEvent = new MouseEvent('contextmenu', { bubbles: true, button: 2, buttons: 2 });
                 cell.dispatchEvent(contextMenuEvent);
@@ -82,58 +80,119 @@
         }
     }
 
+    function findNextTransition(startX, startY, direction) {
+        let x = startX;
+        let y = startY;
+        const startCell = document.querySelector(`div[data-x="${x}"][data-y="${y}"]`);
+        const startType = getCellType(startCell);
+        
+        while (x >= 0 && x <= maxX && y >= 0 && y <= maxY) {
+            switch (direction) {
+                case 'left': x--; break;
+                case 'right': x++; break;
+                case 'up': y--; break;
+                case 'down': y++; break;
+            }
+            
+            if (x < 0 || x > maxX || y < 0 || y > maxY) {
+                switch (direction) {
+                    case 'left': return { x: 0, y: startY };
+                    case 'right': return { x: maxX, y: startY };
+                    case 'up': return { x: startX, y: 0 };
+                    case 'down': return { x: startX, y: maxY };
+                }
+            }
+            
+            const cell = document.querySelector(`div[data-x="${x}"][data-y="${y}"]`);
+            if (!cell) continue;
+            
+            const cellType = getCellType(cell);
+            if (cellType !== startType) {
+                return { x, y };
+            }
+        }
+        
+        return { x: startX, y: startY };
+    }
+
+    function getCellType(cell) {
+        if (cell.classList.contains('hd_closed')) return 'closed';
+        if (cell.classList.contains('hd_type')) return 'revealed';
+        if (cell.classList.contains('flagged')) return 'flagged';
+        return 'unknown';
+    }
+
     function handleKeydown(e) {
         console.log(`Key pressed: ${e.key}`);
         switch (e.key) {
             case 'ArrowUp':
             case 'k':
-                e.preventDefault(); // Prevent default action for arrow keys
+                e.preventDefault();
                 currentY = Math.max(0, currentY - 1);
                 break;
             case 'ArrowDown':
             case 'j':
-                e.preventDefault(); // Prevent default action for arrow keys
+                e.preventDefault();
                 currentY = Math.min(maxY, currentY + 1);
                 break;
             case 'ArrowLeft':
             case 'h':
-                e.preventDefault(); // Prevent default action for arrow keys
+                e.preventDefault();
                 currentX = Math.max(0, currentX - 1);
                 break;
             case 'ArrowRight':
             case 'l':
-                e.preventDefault(); // Prevent default action for arrow keys
+                e.preventDefault();
                 currentX = Math.min(maxX, currentX + 1);
                 break;
             case 'H':
-                e.preventDefault(); // Prevent default action for H key
-                currentX = 0; // Move to left edge
+                e.preventDefault();
+                if (e.shiftKey) {
+                    const { x } = findNextTransition(currentX, currentY, 'left');
+                    currentX = x;
+                } else {
+                    currentX = 0;
+                }
                 break;
             case 'J':
-                e.preventDefault(); // Prevent default action for J key
-                currentY = maxY; // Move to bottom edge
+                e.preventDefault();
+                if (e.shiftKey) {
+                    const { y } = findNextTransition(currentX, currentY, 'down');
+                    currentY = y;
+                } else {
+                    currentY = maxY;
+                }
                 break;
             case 'K':
-                e.preventDefault(); // Prevent default action for K key
-                currentY = 0; // Move to top edge
+                e.preventDefault();
+                if (e.shiftKey) {
+                    const { y } = findNextTransition(currentX, currentY, 'up');
+                    currentY = y;
+                } else {
+                    currentY = 0;
+                }
                 break;
             case 'L':
-                e.preventDefault(); // Prevent default action for L key
-                currentX = maxX; // Move to right edge
+                e.preventDefault();
+                if (e.shiftKey) {
+                    const { x } = findNextTransition(currentX, currentY, 'right');
+                    currentX = x;
+                } else {
+                    currentX = maxX;
+                }
                 break;
             case 'd':
-                e.preventDefault(); // Prevent default action for d key
+                e.preventDefault();
                 revealCell();
                 break;
             case 'c':
-                e.preventDefault(); // Prevent default action for c key
+                e.preventDefault();
                 chordCell();
                 break;
             case 'f':
-                e.preventDefault(); // Prevent default action for f key
+                e.preventDefault();
                 markMine();
                 break;
-            // Do not prevent default action for spacebar
         }
         detectBoardSize();
         updateMarkerPosition();
@@ -175,7 +234,6 @@
         console.log("Initial marker position set.");
     }
 
-    // Handle page navigation to ensure extension is initialized only on game pages
     function handlePageNavigation() {
         if (window.location.pathname.startsWith('/game/')) {
             initMinesweeperExtension();
@@ -186,11 +244,10 @@
     }
 
     window.addEventListener('popstate', handlePageNavigation);
-    window.addEventListener('pushstate', handlePageNavigation); // For SPAs that use pushState
-    window.addEventListener('replaceState', handlePageNavigation); // For SPAs that use replaceState
+    window.addEventListener('pushstate', handlePageNavigation);
+    window.addEventListener('replaceState', handlePageNavigation);
     window.addEventListener('DOMContentLoaded', handlePageNavigation);
     window.addEventListener('load', handlePageNavigation);
 
     initMinesweeperExtension();
 })();
-
